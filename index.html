@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>Apurva — Valentine: Yes or No?</title>
+
+  <meta property="og:title" content="Apurva — Valentine: Yes or No?" />
+  <meta property="og:description" content="Tap Yes or No — pick wisely 😉" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <style>
+    :root{
+      --bg1:#071229;
+      --bg2:#0d1b2a;
+      --accent:#ff4d6d;
+      --muted:#9aa7bd;
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    html,body{height:100%;margin:0}
+    body{
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:#fff;padding:20px;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .card{
+      width:100%;max-width:560px;padding:28px;border-radius:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow:0 12px 40px rgba(2,6,23,0.6);text-align:center;position:relative;
+    }
+
+    h1{margin:0 0 8px;font-size:1.6rem}
+    p.lead{margin:0 0 18px;color:var(--muted)}
+
+    .buttons{
+      position:relative;margin:18px auto;height:130px;width:100%;max-width:420px;
+      display:block;touch-action:none; /* important for pointer/touch responsiveness */
+    }
+
+    .btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      padding:14px 26px;border-radius:999px;border:0;font-weight:800;font-size:1rem;
+      cursor:pointer;outline:none;user-select:none;transition:transform 220ms cubic-bezier(.2,.9,.2,1), left 260ms ease, top 260ms ease;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      -ms-touch-action: manipulation;
+      touch-action: manipulation;
+    }
+
+    .yes{
+      left:40%; transform:translate(-140%, -50%);
+      background:linear-gradient(90deg,#ff7b95 0%, #ff4d6d 100%); color:white;
+    }
+
+    .no{
+      left:60%; transform:translate(40%, -50%);
+      background:#1f2a3a;color:#fff;
+    }
+
+    .no.moving{transform:scale(1.08) translateY(-50%); box-shadow: 0 12px 30px rgba(2,6,23,0.6);}
+
+    .result{margin-top:18px;font-size:1.15rem;min-height:52px}
+    .share{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .share a{background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:#fff;text-decoration:none;font-weight:600}
+    footer{font-size:0.75rem;color:var(--muted);margin-top:14px}
+
+    .confetti{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;border-radius:16px;overflow:hidden}
+    @media (max-width:420px){
+      .buttons{height:150px}
+      .btn{padding:12px 18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="main-title">
+    <h1 id="main-title">Apurva — Will you be my Valentine?</h1>
+    <p class="lead">Tap Yes or No — pick wisely 😉</p>
+
+    <div class="buttons" id="buttonsArea" aria-hidden="false">
+      <button class="btn yes" id="btnYes" aria-label="Yes">💖 Yes</button>
+      <button class="btn no" id="btnNo" aria-label="No" tabindex="-1">❌ No</button>
+    </div>
+
+    <div class="result" id="resultArea" aria-live="polite"></div>
+
+    <div class="share" id="shareButtons" style="display:none">
+      <a id="whatsappShare" href="#" target="_blank" rel="noopener">Share on WhatsApp</a>
+      <a id="copyLink" href="#" role="button">Copy Link</a>
+    </div>
+
+    <footer>Made with ❤️</footer>
+    <div class="confetti" id="confetti"></div>
+  </div>
+
+  <script>
+    const btnYes = document.getElementById('btnYes');
+    const btnNo  = document.getElementById('btnNo');
+    const buttonsArea = document.getElementById('buttonsArea');
+    const resultArea = document.getElementById('resultArea');
+    const shareButtons = document.getElementById('shareButtons');
+    const whatsappShare = document.getElementById('whatsappShare');
+    const copyLink = document.getElementById('copyLink');
+    const confettiWrap = document.getElementById('confetti');
+
+    const pageUrl = location.href.split('#')[0];
+    const displayName = 'Apurva';
+
+    function makeShareURL(text){
+      return 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + pageUrl);
+    }
+
+    function showResult(text){
+      resultArea.textContent = text;
+      shareButtons.style.display = 'flex';
+      whatsappShare.href = makeShareURL(text);
+      copyLink.onclick = (e) => { e.preventDefault(); navigator.clipboard?.writeText(pageUrl).then(()=>alert('Link copied!')).catch(()=>alert('Copy failed')) }
+    }
+
+    function burstConfetti(){
+      confettiWrap.innerHTML = '';
+      const colors = ['#ff6b86','#ffd166','#6ee7b7','#9ad0f5','#ffb3e6'];
+      for(let i=0;i<28;i++){
+        const el = document.createElement('div');
+        el.style.position='absolute';
+        el.style.left = (8 + Math.random()*84) + '%';
+        el.style.top = '-12%';
+        el.style.width = (6+Math.random()*10)+'px';
+        el.style.height = (10+Math.random()*14)+'px';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.opacity = Math.random()*0.9+0.2;
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        el.style.borderRadius = '2px';
+        el.style.pointerEvents='none';
+        confettiWrap.appendChild(el);
+        el.animate([
+          {transform: `translateY(0) rotate(${Math.random()*360}deg)`, opacity:1},
+          {transform: `translateY(${350+Math.random()*300}px) rotate(${Math.random()*720}deg)`, opacity:0.4}
+        ], {duration: 1200 + Math.random()*900, easing:'cubic-bezier(.2,.8,.2,1)'});
+        setTimeout(()=>el.remove(),2400);
+      }
+    }
+
+    btnYes.addEventListener('click', () => {
+      showResult('She said YES 💖');
+      burstConfetti();
+    });
+
+    // NO button behavior: dodge on pointer proximity / touch so it can't be tapped on iPhone Safari
+    let dodgeCount = 0;
+    let lastMove = 0;
+    const maxDodgeBeforeHide = 80;
+
+    function getRelativeRect(el, parent) {
+      const er = el.getBoundingClientRect();
+      const pr = parent.getBoundingClientRect();
+      return {
+        width: er.width, height: er.height,
+        left: er.left - pr.left, top: er.top - pr.top
+      };
+    }
+
+    function moveNoBtn() {
+      const now = Date.now();
+      if (now - lastMove < 100) return; // throttle
+      lastMove = now;
+
+      const areaRect = buttonsArea.getBoundingClientRect();
+      const btnRect  = btnNo.getBoundingClientRect();
+      const padding = 6;
+
+      const maxLeft = Math.max(0, areaRect.width - btnRect.width - padding);
+      const maxTop  = Math.max(0, areaRect.height - btnRect.height - padding);
+
+      // pick a spot biased away from center so it flees
+      const zone = Math.random();
+      let left, top;
+      if (zone < 0.25) {
+        left = Math.random() * (maxLeft * 0.35);
+        top = Math.random() * maxTop;
+      } else if (zone < 0.5) {
+        left = maxLeft * (0.65 + Math.random() * 0.35);
+        top = Math.random() * maxTop;
+      } else if (zone < 0.75) {
+        left = Math.random() * maxLeft;
+        top = Math.random() * (maxTop * 0.35);
+      } else {
+        left = Math.random() * maxLeft;
+        top = maxTop * (0.65 + Math.random() * 0.35);
+      }
+
+      left = Math.max(0, Math.min(left, maxLeft));
+      top  = Math.max(0, Math.min(top, maxTop));
+
+      // convert to percentage positions (relative to area)
+      const leftPct = (left / Math.max(1, areaRect.width)) * 100;
+      const topPct  = (top  / Math.max(1, areaRect.height)) * 100;
+
+      // apply transform-safe positioning
+      // temporarily allow pointer events to be none so it can't be clicked
+      btnNo.style.left = leftPct + '%';
+      btnNo.style.top  = topPct + '%';
+      btnNo.classList.add('moving');
+
+      // ensure it's not focusable or clickable
+      btnNo.setAttribute('aria-disabled', 'true');
+      btnNo.setAttribute('tabindex', '-1');
+      btnNo.style.pointerEvents = 'none';
+
+      setTimeout(()=> btnNo.classList.remove('moving'), 280);
+
+      dodgeCount++;
+      if (dodgeCount > maxDodgeBeforeHide) {
+        // playful vanish: move off screen area so it won't reappear
+        btnNo.style.left = '110%';
+        btnNo.style.top = '-40%';
+      }
+    }
+
+    // Move on pointerenter and pointerdown on NO (fast) — pointer events cover mouse+touch on modern safari
+    btnNo.addEventListener('pointerenter', (e) => {
+      moveNoBtn();
+    }, {passive:true});
+
+    btnNo.addEventListener('pointerdown', (e) => {
+      // prevent actual activation; immediately move
+      e.preventDefault();
+      moveNoBtn();
+    }, {passive:false});
+
+    // When the pointer moves inside the buttons area, react if it gets close
+    buttonsArea.addEventListener('pointermove', (e) => {
+      const rect = btnNo.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width/2);
+      const dy = e.clientY - (rect.top + rect.height/2);
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      // threshold scales with element size: smaller screens need smaller threshold
+      const threshold = Math.max(64, rect.width * 1.1);
+      if (dist < threshold) moveNoBtn();
+    }, {passive:true});
+
+    // Touchstart fallback for Safari iOS (ensure move happens before touchend/click)
+    buttonsArea.addEventListener('touchstart', (e) => {
+      // check if touch is within proximity to the NO button
+      const t = e.touches[0];
+      if (!t) return;
+      const rect = btnNo.getBoundingClientRect();
+      const dx = t.clientX - (rect.left + rect.width/2);
+      const dy = t.clientY - (rect.top + rect.height/2);
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const threshold = Math.max(64, rect.width * 1.1);
+      if (dist < threshold) {
+        // move immediately so the tap won't register on NO
+        moveNoBtn();
+      }
+    }, {passive:true});
+
+    // Defensive: block any click if somehow fired on NO
+    btnNo.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      moveNoBtn();
+      // show a gentle message
+      resultArea.textContent = "Try again 😉";
+      setTimeout(()=> resultArea.textContent = '', 900);
+    }, true);
+
+    function initPositions(){
+      btnYes.style.left = '40%';
+      btnYes.style.top  = '50%';
+      btnNo.style.left  = '60%';
+      btnNo.style.top   = '50%';
+      btnNo.setAttribute('tabindex', '-1');
+      btnNo.setAttribute('aria-disabled', 'true');
+      btnNo.style.pointerEvents = 'none';
+      // After initial layout, re-enable pointer events for movement detection area (not clickable)
+      setTimeout(()=> { btnNo.style.pointerEvents = 'none'; }, 50);
+    }
+    initPositions();
+
+    // On resize, re-initialize so it stays visible on all sizes
+    window.addEventListener('resize', () => {
+      initPositions();
+    });
+
+    // Accessibility: only YES is keyboard-focusable by design
+  </script>
+</body>
+</html>
